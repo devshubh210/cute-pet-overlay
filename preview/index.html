@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Cute Pet Overlay — Preview ♡</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:system-ui,'Segoe UI',Roboto,sans-serif;background:linear-gradient(160deg,#fff7fa,#f3ecff 60%,#e8f6ff);min-height:100vh;overflow:hidden;color:#5b4a5a}
+  .fake-apps{position:fixed;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;opacity:.5;pointer-events:none}
+  .fake-apps div{background:#fff;border-radius:16px;padding:14px;box-shadow:0 4px 14px #0001;font-size:13px}
+  header{position:fixed;top:0;left:0;right:0;padding:12px 16px;display:flex;gap:10px;align-items:center;z-index:5}
+  header .pill{background:#fff;border:2px solid #ffc7d6;border-radius:999px;padding:6px 14px;font-weight:700;color:#e86a92;box-shadow:0 4px 12px #e86a9222}
+  #pet{position:fixed;left:60vw;top:45vh;width:132px;height:132px;z-index:10;cursor:grab;touch-action:none;filter:drop-shadow(0 10px 14px #e86a9233);transition:transform .15s}
+  #pet .body{position:absolute;inset:18px 6px 10px 6px;background:#fffdf7;border-radius:50%/55%;transition:transform .18s}
+  #pet .ear{position:absolute;width:34px;height:40px;background:#fffdf7;top:6px}
+  #pet .ear.l{left:22px;clip-path:polygon(0 100%,50% 0,100% 70%);transform:rotate(-8deg)}
+  #pet .ear.r{right:22px;clip-path:polygon(0 70%,50% 0,100% 100%);transform:rotate(8deg)}
+  #pet .ear i{position:absolute;inset:10px 8px 4px 8px;background:#ffc7d6;display:block;clip-path:inherit}
+  #pet.bunny .ear{width:26px;height:64px;top:-14px;border-radius:14px;clip-path:none}
+  #pet.bunny .ear.l{left:34px;transform:rotate(-8deg)} #pet.bunny .ear.r{right:34px;transform:rotate(8deg)}
+  #pet .eye{position:absolute;top:58px;width:22px;height:26px;background:#2b2b3a;border-radius:50%;transition:transform .1s}
+  #pet .eye.l{left:32px} #pet .eye.r{right:32px}
+  #pet .eye::after{content:'';position:absolute;left:5px;top:4px;width:8px;height:8px;background:#fff;border-radius:50%}
+  #pet.blink .eye{transform:scaleY(.08)}
+  #pet.sleepy .eye{transform:scaleY(.12);background:#5b4a5a}
+  #pet .blush{position:absolute;top:78px;width:22px;height:10px;background:#ffb1c1;border-radius:50%;opacity:.8}
+  #pet .blush.l{left:16px} #pet .blush.r{right:16px}
+  #pet .mouth{position:absolute;left:50%;top:86px;transform:translateX(-50%);font-weight:800;color:#5b4a5a;font-size:16px}
+  #pet.sleepy .mouth{font-size:13px}
+  #pet .feet{position:absolute;bottom:2px;width:26px;height:16px;background:#fffdf7;border-radius:50%}
+  #pet .feet.l{left:28px} #pet .feet.r{right:28px}
+  #pet.happy .body{animation:squish .45s}
+  @keyframes squish{0%{transform:scale(1)}30%{transform:scale(1.12,.86)}60%{transform:scale(.94,1.1)}100%{transform:scale(1)}}
+  @keyframes hop{0%,100%{margin-top:0}50%{margin-top:-26px}}
+  #pet.hop{animation:hop .45s}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #pet.spin{animation:spin .6s}
+  #bubble{position:fixed;z-index:11;background:#fff;border:2px solid #ffc7d6;color:#5b4a5a;border-radius:18px;padding:9px 14px;font-size:14px;font-weight:600;max-width:230px;box-shadow:0 8px 20px #e86a9233;opacity:0;transform:scale(.7);transition:.25s;pointer-events:none;text-align:center}
+  #bubble.show{opacity:1;transform:scale(1)}
+  #bubble::after{content:'';position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);border:10px solid transparent;border-top-color:#ffc7d6;border-bottom:0}
+  .heart{position:fixed;z-index:11;pointer-events:none;font-size:20px;animation:float 1.4s forwards}
+  @keyframes float{to{transform:translateY(-70px) scale(1.3);opacity:0}}
+  .panel{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#ffffffee;backdrop-filter:blur(8px);border-radius:20px 20px 0 0;padding:14px 16px 18px;box-shadow:0 -8px 30px #0001}
+  .panel h2{margin:0;font-size:18px;color:#e86a92}
+  .panel p{margin:4px 0 10px;font-size:13px;color:#8a7a85}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button{border:0;border-radius:999px;padding:10px 16px;font-weight:700;background:#e86a92;color:#fff;cursor:pointer}
+  button.ghost{background:#fff;color:#e86a92;border:2px solid #ffc7d6}
+  button.small{padding:7px 12px;font-size:13px}
+  select,input[type=number]{border-radius:999px;border:2px solid #ffc7d6;padding:7px 10px;font-weight:600;color:#5b4a5a}
+  label{font-size:12px;font-weight:700}
+  .onoff{margin-left:auto;display:flex;align-items:center;gap:8px;font-weight:800}
+  .switch{width:56px;height:30px;background:#ddd;border-radius:999px;position:relative;cursor:pointer;transition:.2s}
+  .switch.on{background:#58d68d}
+  .switch::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.2s}
+  .switch.on::after{left:29px}
+  #restBanner{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:30;background:#2b2b3a;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;display:none;box-shadow:0 8px 24px #0004}
+</style>
+</head>
+<body>
+<div class="fake-apps">
+  <div>📺 <b>YouTube</b><br>pet floats here too!</div>
+  <div>💬 <b>WhatsApp</b><br>pet stays on top ♡</div>
+  <div>🎮 <b>Game</b><br>drag pet anywhere</div>
+  <div>📸 <b>Instagram</b><br>tap pet = hearts</div>
+</div>
+<header><span class="pill">♡ Cute Pet Preview — this is how the real app behaves</span></header>
+<div id="restBanner">🌙 rest mode…</div>
+<div id="bubble"></div>
+<div id="pet">
+  <div class="ear l"><i></i></div><div class="ear r"><i></i></div>
+  <div class="body"></div>
+  <div class="eye l"></div><div class="eye r"></div>
+  <div class="blush l"></div><div class="blush r"></div>
+  <div class="mouth">‿</div>
+  <div class="feet l"></div><div class="feet r"></div>
+</div>
+
+<div class="panel">
+  <div class="row">
+    <div><h2>♡ My Cute Pet</h2><p>drag pet • tap = hearts • auto-walks • bubbles • rest reminders</p></div>
+    <div class="onoff"><span id="onoffLabel">ON</span><div id="sw" class="switch on"></div></div>
+  </div>
+  <div class="row">
+    <label>pet</label>
+    <select id="petSel"><option value="">🐱 Cat</option><option value="bunny">🐰 Bunny</option></select>
+    <label>💬 every</label><select id="bubbleSel"><option value="12">12s (demo)</option><option value="35" selected>35s</option><option value="60">60s</option></select>
+    <label>🌙 rest every</label><select id="restSel"><option value="1">1 min (demo)</option><option value="50" selected>50 min</option><option value="25">25 min</option></select>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button class="small ghost" id="bHappy">♡ Happy</button>
+    <button class="small ghost" id="bSpin">🌀 Spin</button>
+    <button class="small ghost" id="bSleep">🌙 Sleep</button>
+    <button class="small ghost" id="bBubble">💬 Talk</button>
+    <button class="small" id="bRest">🌙 Rest now</button>
+  </div>
+</div>
+
+<script>
+const pet=document.getElementById('pet'),mouth=pet.querySelector('.mouth'),
+bubble=document.getElementById('bubble'),sw=document.getElementById('sw'),
+onoffLabel=document.getElementById('onoffLabel'),restBanner=document.getElementById('restBanner');
+let ON=true,bubbleTimer=null,restTimer=null,hideT=null,wanderT=null,isRest=false;
+const cuteLines=["hi hi! (≧◡≦) ♡","you're doing great!","drink some water? 💧","pfft… I did a spin!","tap me! tap me!","I'm watching u work~","stretchy time soon~","you + me = best team!","hehe that tickles!","don't forget to blink! 👀","uwu 💕","let's finish this together!","snack break? 🍪","boop! ♡","stay cozy~"];
+const tapLines=["ehehe! ♡","boop back!","hii!! (≧◡≦)","that tickles~!","again! again!","💕💕💕","purr purr~","hehe!"];
+const restLines=["rest time~ close eyes 20s? 🌙","you've worked hard! stretch! 🧘","look 20ft away for 20s 👀","water + stretch + breathe 💧","I'm sleepy too… rest with me? zzz"];
+function showBubble(t,ms=4000){if(!ON)return;bubble.textContent=t;const r=pet.getBoundingClientRect();bubble.style.left=Math.min(Math.max(r.left+r.width/2-110,8),innerWidth-238)+'px';bubble.style.top=Math.max(r.top-64,60)+'px';bubble.classList.add('show');clearTimeout(hideT);hideT=setTimeout(()=>bubble.classList.remove('show'),ms);}
+function hearts(n=6){for(let i=0;i<n;i++){const s=document.createElement('div');s.className='heart';s.textContent=['♡','💕','✨','💖'][Math.floor(Math.random()*4)];const r=pet.getBoundingClientRect();s.style.left=(r.left+Math.random()*r.width)+'px';s.style.top=(r.top+10)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),1400);}}
+function hop(){pet.classList.remove('hop');void pet.offsetWidth;pet.classList.add('hop');}
+function happy(m){pet.classList.remove('happy');void pet.offsetWidth;pet.classList.add('happy');mouth.textContent='◕';hop();hearts(7);showBubble(m||tapLines[Math.floor(Math.random()*tapLines.length)]);setTimeout(()=>mouth.textContent='‿',1600);}
+// blink
+setInterval(()=>{if(!ON||isRest)return;pet.classList.add('blink');setTimeout(()=>pet.classList.remove('blink'),180);},2800+Math.random()*2000);
+// drag
+let sx,sy,ox,oy,drag=false;
+pet.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;const r=pet.getBoundingClientRect();ox=r.left;oy=r.top;drag=true;pet.setPointerCapture(e.pointerId);pet.style.cursor='grabbing';});
+pet.addEventListener('pointermove',e=>{if(!drag||!ON)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>4){pet.style.left=(ox+dx)+'px';pet.style.top=(oy+dy)+'px';}});
+pet.addEventListener('pointerup',e=>{drag=false;pet.style.cursor='grab';const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)<8)happy();else hop();});
+// tap handled above; wander
+function wander(){if(!ON||isRest)return;const nx=Math.random()*(innerWidth-150),ny=80+Math.random()*(innerHeight-380);pet.style.transition='left 1.8s ease-in-out, top 1.8s ease-in-out';pet.style.left=nx+'px';pet.style.top=ny+'px';hop();setTimeout(()=>pet.style.transition='transform .15s',1900);}
+function loopWander(){clearTimeout(wanderT);wanderT=setTimeout(()=>{wander();loopWander();},4000+Math.random()*3000);}
+function loopBubble(){clearTimeout(bubbleTimer);const s=+document.getElementById('bubbleSel').value;bubbleTimer=setTimeout(()=>{if(ON&&!isRest){showBubble(cuteLines[Math.floor(Math.random()*cuteLines.length)]);hop();}loopBubble();},s*1000);}
+function loopRest(){clearTimeout(restTimer);const m=+document.getElementById('restSel').value;restTimer=setTimeout(()=>{triggerRest();loopRest();},m*60000);}
+function triggerRest(){if(!ON)return;isRest=true;pet.classList.add('sleepy');mouth.textContent='z';restBanner.style.display='block';restBanner.textContent='🌙 rest time! stretch + water + look far 20s';showBubble(restLines[Math.floor(Math.random()*restLines.length)],8000);hearts(2);setTimeout(()=>{isRest=false;pet.classList.remove('sleepy');mouth.textContent='‿';restBanner.style.display='none';happy('all rested? let\'s go! ♡');},12000);}
+sw.onclick=()=>{ON=!ON;sw.classList.toggle('on',ON);onoffLabel.textContent=ON?'ON':'OFF';pet.style.opacity=ON?1:.25;bubble.classList.remove('show');restBanner.style.display='none';if(ON){showBubble("I'm back! ♡");loopBubble();loopRest();loopWander();}};
+document.getElementById('bHappy').onclick=()=>happy();
+document.getElementById('bSpin').onclick=()=>{pet.classList.remove('spin');void pet.offsetWidth;pet.classList.add('spin');showBubble('wheee! 🌀');};
+document.getElementById('bSleep').onclick=()=>{isRest=!isRest;pet.classList.toggle('sleepy',isRest);mouth.textContent=isRest?'z':'‿';showBubble(isRest?'shhh… zzz':'wake up! ♡');};
+document.getElementById('bBubble').onclick=()=>showBubble(cuteLines[Math.floor(Math.random()*cuteLines.length)]);
+document.getElementById('bRest').onclick=triggerRest;
+document.getElementById('petSel').onchange=e=>pet.classList.toggle('bunny',e.target.value==='bunny');
+document.getElementById('bubbleSel').onchange=loopBubble;document.getElementById('restSel').onchange=loopRest;
+showBubble("hi! I'm your new buddy ♡ drag me!");loopBubble();loopRest();loopWander();
+</script>
+</body>
+</html>

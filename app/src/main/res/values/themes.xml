@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.CutePet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#E86A92</item>
+        <item name="colorPrimaryVariant">#C94F78</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="android:statusBarColor">#FFF7FA</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>
