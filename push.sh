@@ -33,14 +33,22 @@ GH_REPO=${GH_REPO:-cute-pet-overlay}
 printf "Paste token (ghp_... from Settings > Developer settings > Tokens classic > repo): "
 read -s GH_TOKEN
 echo ""
+# clean accidental spaces / double-paste (token pasted twice looks doubled)
+GH_TOKEN="$(echo "$GH_TOKEN" | tr -d ' \t\r\n')"
+if [ ${#GH_TOKEN} -gt 100 ]; then
+  echo "Token looks pasted twice (${#GH_TOKEN} chars). Trimming to first token..."
+  GH_TOKEN="$(echo "$GH_TOKEN" | grep -o 'ghp_[A-Za-z0-9]*' | head -n 1)"
+  echo "Trimmed length: ${#GH_TOKEN}"
+fi
 
 git remote remove origin 2>/dev/null || true
-git remote add origin "https://${GH_TOKEN}@github.com/${GH_USER}/${GH_REPO}.git"
+git remote add origin "https://github.com/${GH_USER}/${GH_REPO}.git"
 git branch -M main
 
 echo ""
 echo "=== 3/3: Pushing... ==="
-git push -u origin main
+# header auth avoids URL-encoding issues with special chars in token
+git -c http.extraHeader="AUTHORIZATION: bearer ${GH_TOKEN}" push -u origin main
 
 echo ""
 echo "DONE! Now open github.com/${GH_USER}/${GH_REPO} -> Actions -> Build APK -> Run workflow"
